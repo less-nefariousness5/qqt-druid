@@ -94,14 +94,12 @@ local function logics(target)
         return false;
     end
 
-    -- Proper resource check with build integration
-    local build_settings = my_utility.get_build_settings()
+    -- Proper resource check
     local current_mana = local_player:get_primary_resource_current()
     local max_mana = local_player:get_primary_resource_max()
     if max_mana > 0 then
         local mana_percentage = current_mana / max_mana
-        local mana_threshold = build_settings.mana_conservation
-        if mana_percentage < mana_threshold then
+        if mana_percentage < 0.2 then -- Hardcoded 20% mana threshold
             return false;
         end
     end

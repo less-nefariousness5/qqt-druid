@@ -10,17 +10,16 @@ if not is_necro then
 end;
 
 local menu = require("menu");
-local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
 
 local spells =
 {
     blood_mist                  = require("spells/blood_mist"),
-    bone_spear                  = require("spells/bone_spear"),           
-    bone_splinters              = require("spells/bone_splinters"),               
-    corpse_explosion            = require("spells/corpse_explosion"),                     
-    corpse_tendrils             = require("spells/corpse_tendrils"),                  
-    decrepify                   = require("spells/decrepify"), 
+    bone_spear                  = require("spells/bone_spear"),
+    bone_splinters              = require("spells/bone_splinters"),
+    corpse_explosion            = require("spells/corpse_explosion"),
+    corpse_tendrils             = require("spells/corpse_tendrils"),
+    decrepify                   = require("spells/decrepify"),
     hemorrhage                  = require("spells/hemorrhage"),
     reap                        = require("spells/reap"),
     blood_lance                 = require("spells/blood_lance"),
@@ -37,6 +36,30 @@ local spells =
     golem_control               = require("spells/golem_control"),
     soulrift                    = require("spells/soulrift"),  -- 添加soulrift技能
     decompose			= require("spells/decompose"), -- added Loki
+}
+
+-- Define the order of spells for menu rendering
+local spell_order = {
+    "blood_mist", "golem_control", "raise_skeleton", "soulrift", "decrepify",
+    "blood_wave", "army_of_the_dead", "corpse_tendrils", "bone_spear", "corpse_explosion",
+    "decompose", "bone_splinters", "reap", "blood_lance", "blood_surge", "blight", "sever",
+    "bone_prison", "iron_maiden", "bone_spirit", "bone_storm", "hemorrhage"
+}
+
+-- Centralized build configurations
+local builds = {
+    [0] = { -- Bloodwave (DoT)
+        name = "Bloodwave (DoT)",
+        rotation = { "corpse_tendrils", "blood_wave", "blight", "blood_surge", "corpse_explosion" }
+    },
+    [1] = { -- Ring of Power (Mages)
+        name = "Ring of Power (Mages)",
+        rotation = { "army_of_the_dead", "corpse_tendrils", "bone_spear", "corpse_explosion" }
+    },
+    [2] = { -- Shadowblight
+        name = "Shadowblight",
+        rotation = { "blight", "decompose", "sever", "corpse_tendrils", "bone_spear" }
+    }
 }
 
 on_render_menu (function ()
@@ -56,34 +79,34 @@ on_render_menu (function ()
     if menu.build_config_tree:push("Build Configuration") then
         local build_options = {"Bloodwave (DoT)", "Ring of Power (Mages)", "Shadowblight"}
         menu.build_selector:render("Select Build", build_options, "Choose your necromancer build")
-        
+
         local selected_build = menu.build_selector:get()
-        
+
         -- Global build configuration (applies to all builds)
         if menu.bloodwave_build_tree:push("Build Settings") then
             menu.build_aggressive_mode:render("Aggressive Mode", "Cast spells more frequently with lower thresholds")
             menu.build_elite_priority:render("Elite Priority", "Always prioritize elite/boss/champion targets")
             menu.build_mana_conservation:render("Mana Conservation", "Minimum mana percentage to maintain (0.15-0.50)", 2)
-            
-            
+
+
             menu.bloodwave_build_tree:pop()
         end
-        
+
         menu.build_config_tree:pop()
     end
 
     -- Weighted Targeting System menu (imported from Sorcerer)
     if menu.weighted_targeting_tree:push("Weighted Targeting System") then
         menu.weighted_targeting_enabled:render("Enable Weighted Targeting", "Enable weighted system for prioritizing targets")
-        
+
         if menu.weighted_targeting_enabled:get() then
             menu.scan_radius:render("Scan Radius", "Radius around character to scan for targets (1-30)", 1)
             menu.scan_refresh_rate:render("Refresh Rate", "Target scan refresh rate in seconds (0.1-1.0)", 1)
             menu.min_targets:render("Minimum Targets", "Minimum number of targets required (1-10)")
             menu.comparison_radius:render("Comparison Radius", "Radius to check nearby targets (0.1-6.0)", 1)
-            
+
             menu.custom_weights_enabled:render("Custom Enemy Weights", "Enable to customize weights for different enemy types")
-            
+
             if menu.custom_weights_enabled:get() then
                 menu.boss_weight:render("Boss Weight", "Weight assigned to boss targets (1-100)")
                 menu.elite_weight:render("Elite Weight", "Weight assigned to elite targets (1-100)")
@@ -91,24 +114,24 @@ on_render_menu (function ()
                 menu.any_weight:render("Normal Target Weight", "Weight assigned to normal targets (0-100)")
             end
         end
-        
+
         menu.weighted_targeting_tree:pop()
     end;
-    
+
     -- Get equipped spells
     local equipped_spells = get_equipped_spell_ids()
     table.insert(equipped_spells, spell_data.evade.spell_id) -- add evade to the list
-    
+
     -- Create a lookup table for equipped spells
     local equipped_lookup = {}
     for _, spell_id in ipairs(equipped_spells) do
         equipped_lookup[spell_id] = true
     end
-    
+
     -- Active spells menu (spells that are currently equipped)
     if menu.active_spells_tree:push("Active Spells") then
-        -- Iterate through spell_priority to maintain the defined order
-        for _, spell_name in ipairs(spell_priority) do
+        -- Iterate through spell_order to maintain the defined order
+        for _, spell_name in ipairs(spell_order) do
             -- Check if the spell exists in spells table, spell_data, and if it's equipped
             if spells[spell_name] and spell_data[spell_name] and spell_data[spell_name].spell_id and equipped_lookup[spell_data[spell_name].spell_id] then
                 spells[spell_name].menu()
@@ -116,11 +139,11 @@ on_render_menu (function ()
         end
         menu.active_spells_tree:pop()
     end
-    
+
     -- Inactive spells menu (spells that are not currently equipped)
     if menu.inactive_spells_tree:push("Inactive Spells") then
-        -- Iterate through spell_priority to maintain the defined order
-        for _, spell_name in ipairs(spell_priority) do
+        -- Iterate through spell_order to maintain the defined order
+        for _, spell_name in ipairs(spell_order) do
             -- Check if the spell exists in spells table, spell_data, and if it's not equipped
             if spells[spell_name] and spell_data[spell_name] and spell_data[spell_name].spell_id and not equipped_lookup[spell_data[spell_name].spell_id] then
                 spells[spell_name].menu()
@@ -130,7 +153,7 @@ on_render_menu (function ()
     end;
 
     menu.main_tree:pop();
-    
+
 end
 )
 
@@ -155,12 +178,12 @@ on_update(function ()
     if not local_player then
         return;
     end
-    
+
     if menu.main_boolean:get() == false then
         -- if plugin is disabled dont do any logic
         return;
     end;
-    
+
     local current_time = get_time_since_inject()
     if current_time < cast_end_time then
         return;
@@ -179,11 +202,12 @@ on_update(function ()
 
     if not my_utility.is_action_allowed() then
         return;
-    end  
-    
+    end
+
     -- Get selected build for rotation logic
-    local selected_build = menu.build_selector:get()
-    
+    local selected_build_index = menu.build_selector:get()
+    local selected_build = builds[selected_build_index]
+
     -- Priority 1: Essential survival/buffs (all builds)
     if spells.blood_mist.logics()then
         cast_end_time = current_time + 0.5;
@@ -191,12 +215,12 @@ on_update(function ()
     end;
 
     -- Build-specific minion management
-    if selected_build == 1 and spells.golem_control and spells.golem_control.logics()then -- Ring of Power
+    if selected_build_index == 1 and spells.golem_control and spells.golem_control.logics()then -- Ring of Power
         cast_end_time = current_time + 0.5;
         return;
     end;
 
-    if selected_build == 1 and spells.raise_skeleton and spells.raise_skeleton.logics()then -- Ring of Power mages
+    if selected_build_index == 1 and spells.raise_skeleton and spells.raise_skeleton.logics()then -- Ring of Power mages
         cast_end_time = current_time + 0.5;
         return;
     end;
@@ -210,13 +234,13 @@ on_update(function ()
 
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
+        screen_range,
+        collision_table,
+        floor_table,
         angle_table);
 
     local target_selector_data = my_target_selector.get_target_selector_data(
-        player_position, 
+        player_position,
         entity_list);
 
     if not target_selector_data.is_valid then
@@ -237,7 +261,7 @@ on_update(function ()
         local distance_sqr = unit_position:squared_dist_to_ignore_z(player_position);
         if distance_sqr < (max_range * max_range) then
             best_target = unit;
-        end        
+        end
     end
 
     if target_selector_data.has_boss then
@@ -256,7 +280,7 @@ on_update(function ()
         if distance_sqr < (max_range * max_range) then
             best_target = unit;
         end
-    end   
+    end
 
     if not best_target then
         return;
@@ -265,7 +289,7 @@ on_update(function ()
     local best_target_position = best_target:get_position();
     local distance_sqr = best_target_position:squared_dist_to_ignore_z(player_position);
 
-    if distance_sqr > (max_range * max_range) then            
+    if distance_sqr > (max_range * max_range) then
         best_target = target_selector_data.closest_unit;
         local closer_pos = best_target:get_position();
         local distance_sqr_2 = closer_pos:squared_dist_to_ignore_z(player_position);
@@ -275,87 +299,14 @@ on_update(function ()
     end
 
     -- Build-Specific Rotation Logic
-    if selected_build == 0 then
-        -- BLOODWAVE BUILD ROTATION
-        -- Priority: Blood Wave > Corpse Tendrils > Blight > Blood Surge > Corpse Explosion
-        
-        if spells.corpse_tendrils.logics()then -- Group enemies first
-            cast_end_time = current_time + 0.30 
-            return;
+    if selected_build then
+        for _, spell_name in ipairs(selected_build.rotation) do
+            local spell = spells[spell_name]
+            if spell and spell.logics(best_target, entity_list) then
+                cast_end_time = current_time + 0.5
+                return
+            end
         end
-
-        if spells.blood_wave.logics(best_target)then -- Main damage spell
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
-
-        if spells.blight.logics(best_target)then -- DoT debuff
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
-
-        if spells.blood_surge.logics()then -- Secondary blood spell
-            cast_end_time = current_time + 0.6;
-            return;
-        end;
-
-        if spells.corpse_explosion.logics()then -- Corpse cleanup
-            cast_end_time = current_time + 0.50;
-            return;
-        end;
-
-    elseif selected_build == 1 then
-        -- RING OF POWER (MAGES) BUILD ROTATION
-        -- Priority: Skeletal Mages > Army of Dead > Golem > Corpse skills > Bone spells
-        
-        if spells.army_of_the_dead.logics()then -- Summon army
-            cast_end_time = current_time + 0.2;
-            return;
-        end;
-
-        if spells.corpse_tendrils.logics()then -- Group for mages
-            cast_end_time = current_time + 0.30 
-            return;
-        end
-
-        if spells.bone_spear.logics(best_target, entity_list)then -- Filler damage
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
-
-        if spells.corpse_explosion.logics()then -- Additional AoE
-            cast_end_time = current_time + 0.50;
-            return;
-        end;
-
-    elseif selected_build == 2 then
-        -- SHADOWBLIGHT BUILD ROTATION  
-        -- Priority: Blight > Decompose > Sever > Shadow spells for stacking
-        
-        if spells.blight.logics(best_target)then -- Main shadow damage
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
-
-        if spells.decompose.logics(best_target, entity_list) then -- Shadow DoT stacks
-            cast_end_time = current_time + 0.5;
-            return;
-        end;
-
-        if spells.sever.logics(best_target)then -- Additional shadow instances
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
-
-        if spells.corpse_tendrils.logics()then -- Crowd control
-            cast_end_time = current_time + 0.30 
-            return;
-        end
-
-        if spells.bone_spear.logics(best_target, entity_list)then -- Filler
-            cast_end_time = current_time + 0.4;
-            return;
-        end;
     end
 
     -- Universal utility spells (all builds)
@@ -419,11 +370,11 @@ on_update(function ()
                         --console.print("auto play move_to_cpathfinder - 222")
                     end
                 end
-                
+
             end
         end
     end
-    
+
 end);
 
 local draw_player_circle = false;
@@ -449,7 +400,7 @@ on_render(function ()
     if draw_player_circle then
         graphics.circle_3d(player_position, 8, color_white(85), 3.5, 144)
         graphics.circle_3d(player_position, 6, color_white(85), 2.5, 144)
-    end    
+    end
 
     if draw_enemy_circles then
         local enemies = actors_manager.get_enemy_npcs()
@@ -478,13 +429,13 @@ on_render(function ()
 
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
+        screen_range,
+        collision_table,
+        floor_table,
         angle_table);
 
     local target_selector_data = my_target_selector.get_target_selector_data(
-        player_position, 
+        player_position,
         entity_list);
 
     if not target_selector_data.is_valid then
@@ -505,7 +456,7 @@ on_render(function ()
         local distance_sqr = unit_position:squared_dist_to_ignore_z(player_position);
         if distance_sqr < (max_range * max_range) then
             best_target = unit;
-        end        
+        end
     end
 
     if target_selector_data.has_boss then
@@ -524,7 +475,7 @@ on_render(function ()
         if distance_sqr < (max_range * max_range) then
             best_target = unit;
         end
-    end   
+    end
 
     if not best_target then
         return;
