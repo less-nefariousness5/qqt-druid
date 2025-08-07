@@ -3,9 +3,7 @@ local my_utility = require("my_utility/my_utility")
 local menu_elements = {
     decrepify_submenu           = tree_node:new(1),
     decrepify_boolean           = checkbox:new(true, get_hash(my_utility.plugin_label .. "decrepify_boolean_base")),
-    decrepify_mode              = combo_box:new(0, get_hash(my_utility.plugin_label .. "decrepify_cast_modes_base")),
     min_hits_slider             = slider_int:new(0, 30, 5, get_hash(my_utility.plugin_label .. "decrepify_min_hits_slider_base")),
-
     allow_elite_single_target   = checkbox:new(true, get_hash(my_utility.plugin_label .. "allow_elite_single_target_base")),
     effect_size_affix_mult      = slider_float:new(0.0, 200.0, 0.0, get_hash(my_utility.plugin_label .. "decrepify_effect_size_affix_mult_slider_base")),
 }
@@ -15,9 +13,6 @@ local function menu()
         menu_elements.decrepify_boolean:render("Enable Decrepify Cast", "")
 
         if menu_elements.decrepify_boolean:get() then
-            -- create the combo box elements as a table
-            local dropbox_options = {"Combo & Clear", "Combo Only", "Clear Only"}
-            menu_elements.decrepify_mode:render("Cast Modes", dropbox_options, "")
             menu_elements.min_hits_slider:render("Min Hits", "")
             menu_elements.allow_elite_single_target:render("Always Cast On Single Elite", "")
             menu_elements.effect_size_affix_mult:render("Effect Size Affix Mult", "", 1)
@@ -40,8 +35,8 @@ local function logics()
 
     local menu_boolean = menu_elements.decrepify_boolean:get();
     local is_logic_allowed = my_utility.is_spell_allowed(
-                menu_boolean, 
-                last_decrepify_cast_time, 
+                menu_boolean,
+                last_decrepify_cast_time,
                 decrepify_spell_id);
 
     if not is_logic_allowed then
@@ -57,7 +52,7 @@ local function logics()
     local local_player = get_local_player();
     local current_resource = local_player:get_primary_resource_current();
     local max_resource = local_player:get_primary_resource_max();
-    local resource_percentage = current_resource / max_resource; 
+    local resource_percentage = current_resource / max_resource;
     local is_low_resources = resource_percentage < 0.55;
 
     if is_low_resources then
@@ -76,7 +71,7 @@ local function logics()
     local player_position = get_player_position();
     local area_data = target_selector.get_most_hits_target_circular_area_heavy(player_position, 9.0, circle_radius)
     local best_target = area_data.main_target;
-    
+
     if not best_target then
         return;
     end
@@ -96,7 +91,7 @@ local function logics()
                 is_single_target_allowed = true
                 break -- Exit the loop as the condition has been met
             end
-        
+
             -- Check if the unit is an elite with more than 45% health
             if unit:is_elite() and current_health_percentage > 45 then
                 is_single_target_allowed = true
@@ -139,19 +134,19 @@ local function logics()
 
     local best_cast_position = best_cast_data.point;
     if cast_spell.position(decrepify_spell_id, best_cast_position, 0.40) then
-        
+
         local current_time = get_time_since_inject();
         last_decrepify_cast_time = current_time + value;
         console.print("Necromancer Plugin, Casted Decrepify, Target " .. best_target:get_skin_name() .. " Hits: " .. best_cast_hits);
-        
+
         return true;
     end
-    
+
     return false;
 end
 
-return 
+return
 {
     menu = menu,
-    logics = logics,   
+    logics = logics,
 }

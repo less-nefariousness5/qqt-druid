@@ -18,23 +18,23 @@ local function menu()
     if menu_elements.raise_skeleton_submenu:push("Raise Skeleton") then
         -- MASTER TOGGLE
         menu_elements.enable_skill:render("Enable Skill", "Master toggle for all Raise Skeleton functionality")
-        
+
         if menu_elements.enable_skill:get() then
             -- PHASE 2: SPAM MODE - Instant casting to reach max
             menu_elements.raise_skeleton_ranged:render("Enable Spam Mode", "Instantly cast skeletons until max is reached")
-            
+
             if menu_elements.raise_skeleton_ranged:get() then
                 menu_elements.max_skeletons_slider:render("Max Skeletons", "Maximum skeletons for spam mode (1-14)")
             end
-            
+
             -- PHASE 5: MAINTENANCE MODE - Continuous casting for empower buff
             menu_elements.auto_buff_boolean:render("Enable Buff Maintenance", "Keep casting for 8-second empower buff even at max skeletons")
-            
+
             if menu_elements.auto_buff_boolean:get() then
                 menu_elements.auto_buff_cast_time:render("Buff Cast Interval", "Cast interval for empower buff maintenance (seconds)")
             end
         end
-        
+
         menu_elements.raise_skeleton_submenu:pop()
     end
 end
@@ -55,20 +55,20 @@ local raise_skeleton_spell_data = spell_data:new(
 local function get_current_skeletons_ranged_list()
     local list = {}
     local actors = actors_manager.get_ally_actors()
-    
+
     for _, object in ipairs(actors) do
         if object then
             local skin_name = object:get_skin_name()
-            local is_ranged = skin_name == skeleton_ranged_shadow_name 
-                or skin_name == skeleton_ranged_cold_name 
+            local is_ranged = skin_name == skeleton_ranged_shadow_name
+                or skin_name == skeleton_ranged_cold_name
                 or skin_name == skeleton_ranged_sacrifice_name
-            
+
             if is_ranged then
                 table.insert(list, object)
             end
         end
     end
-    
+
     return list
 end
 
@@ -81,7 +81,7 @@ local function get_corpses_to_rise_list()
         if object then
             local skin_name = object:get_skin_name()
             local is_corpse = skin_name == "Necro_Corpse"
-            
+
             if is_corpse then
                 table.insert(corpse_list, object)
             end
@@ -104,24 +104,24 @@ local function attempt_cast_skeleton(mode, current_count, max_count)
     if not nearby_enemy then
         return false
     end
-   
+
     local corpses_to_rise = get_corpses_to_rise_list()
     if #corpses_to_rise <= 0 then
         return false
     end
-  
+
     local corpse_to_rise = corpses_to_rise[1]
     if not corpse_to_rise then
         return false
     end
-    
+
     local corpse_position = corpse_to_rise:get_position()
     local distance = corpse_position:dist_to(player_position)
-    
+
     if distance > raise_skeleton_spell_data.range then
         return false
     end
-    
+
     if cast_spell.target(corpse_to_rise, raise_skeleton_id, 0.60, false) then
         return true
     else
@@ -132,7 +132,7 @@ end
 local function logics()
     local skill_enabled = menu_elements.enable_skill:get()
     if skill_enabled == nil then skill_enabled = true end
-    
+
     if not skill_enabled then
         return false
     end
@@ -145,7 +145,7 @@ local function logics()
     if not utility.can_cast_spell(raise_skeleton_id) then
         return false
     end
-    
+
     if not utility.is_spell_ready(raise_skeleton_id) then
         return false
     end
@@ -155,11 +155,11 @@ local function logics()
 
     local ranged_toggle = menu_elements.raise_skeleton_ranged:get()
     if ranged_toggle == nil then ranged_toggle = true end
-    
+
     if ranged_toggle then
         local max_skeletons = menu_elements.max_skeletons_slider:get()
         if max_skeletons == nil then max_skeletons = 12 end
-        
+
         if skeleton_count < max_skeletons then
             return attempt_cast_skeleton("SPAM", skeleton_count, max_skeletons)
         end
@@ -167,23 +167,23 @@ local function logics()
 
     local auto_buff = menu_elements.auto_buff_boolean:get()
     if auto_buff == nil then auto_buff = true end
-    
+
     if auto_buff then
         local cast_interval = menu_elements.auto_buff_cast_time:get()
         if cast_interval == nil then cast_interval = 3 end
-        
+
         local current_time = get_time_since_inject()
         local time_since_last_cast = current_time - last_successful_cast
-        
+
         if time_since_last_cast < cast_interval then
             return false
         end
-        
+
         local max_skeletons = 12
         if ranged_toggle then
             max_skeletons = menu_elements.max_skeletons_slider:get() or 12
         end
-        
+
         if skeleton_count > 0 then
             if attempt_cast_skeleton("MAINTENANCE", skeleton_count, max_skeletons) then
                 last_successful_cast = current_time
@@ -199,5 +199,5 @@ end
 
 return {
     menu = menu,
-    logics = logics,   
+    logics = logics,
 }

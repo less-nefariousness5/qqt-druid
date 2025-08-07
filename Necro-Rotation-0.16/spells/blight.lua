@@ -4,21 +4,17 @@ local spell_data = require("my_utility/spell_data")
 local menu_elements_blight_base = {
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(true, get_hash(my_utility.plugin_label .. "main_boolean_blight_base")),
-    priority_target       = checkbox:new(false, get_hash(my_utility.plugin_label .. "blight_priority_target_bool")),
-    elite_only            = checkbox:new(false, get_hash(my_utility.plugin_label .. "blight_elite_only_bool")),
     max_range             = slider_float:new(5.0, 12.0, 9.0, get_hash(my_utility.plugin_label .. "blight_max_range")),
 }
 
 local function menu()
     if menu_elements_blight_base.tree_tab:push("Blight") then
         menu_elements_blight_base.main_boolean:render("Enable Spell", "")
- 
+
         if menu_elements_blight_base.main_boolean:get() then
-            menu_elements_blight_base.priority_target:render("Priority Target", "Target priority: Boss > Champion > Elite > Normal")
-            menu_elements_blight_base.elite_only:render("Elite Only", "Only attack elite, champion and boss monsters")
             menu_elements_blight_base.max_range:render("Max Range", "Maximum range to cast Blight")
         end
-      
+
         menu_elements_blight_base.tree_tab:pop()
     end
 end
@@ -29,44 +25,12 @@ local next_time_allowed_cast = 0.0
 -- Use proper spell data from module
 local blight_spell_data = spell_data.blight and spell_data.blight.data or nil;
 
-local function get_priority_target(target_selector_data)
-    local best_target = nil
-    local target_type = "none"
-    local elite_only = menu_elements_blight_base.elite_only:get()
-    
-    if target_selector_data and target_selector_data.has_boss then
-        best_target = target_selector_data.closest_boss
-        target_type = "Boss"
-        return best_target, target_type
-    end
-    
-    if target_selector_data and target_selector_data.has_champion then
-        best_target = target_selector_data.closest_champion
-        target_type = "Champion"
-        return best_target, target_type
-    end
-    
-    if target_selector_data and target_selector_data.has_elite then
-        best_target = target_selector_data.closest_elite
-        target_type = "Elite"
-        return best_target, target_type
-    end
-    
-    if not elite_only and target_selector_data and target_selector_data.closest_unit then
-        best_target = target_selector_data.closest_unit
-        target_type = "Regular"
-        return best_target, target_type
-    end
-    
-    return nil, "none"
-end
-
 local function logics(target)
     -- Proper API validation sequence
     local menu_boolean = menu_elements_blight_base.main_boolean:get()
     local is_logic_allowed = my_utility.is_spell_allowed(
-        menu_boolean, 
-        next_time_allowed_cast, 
+        menu_boolean,
+        next_time_allowed_cast,
         blight_spell_id
     )
 
@@ -107,7 +71,7 @@ local function logics(target)
     -- Range validation with configurable distance
     local target_position = target:get_position()
     local player_position = local_player:get_position()
-    
+
     if not target_position or not player_position then
         return false;
     end
@@ -116,14 +80,6 @@ local function logics(target)
     local distance_sqr = target_position:squared_dist_to_ignore_z(player_position);
     if distance_sqr > (max_range * max_range) then
         return false;
-    end
-
-    -- Elite filtering
-    local elite_only = menu_elements_blight_base.elite_only:get()
-    if elite_only then
-        if not target:is_boss() and not target:is_elite() and not target:is_champion() then
-            return false;
-        end
     end
 
     -- Wall collision check using framework API
@@ -135,11 +91,11 @@ local function logics(target)
     -- Human-like timing controls
     local current_time = get_time_since_inject();
     local min_cast_interval = 0.12; -- Slightly faster for DoT stacking
-    
+
     if current_time - next_time_allowed_cast < min_cast_interval then
         return false;
     end
-    
+
     -- Safe cast with framework API
     local success = cast_spell.target(target, blight_spell_data, false);
     if success then
@@ -153,5 +109,5 @@ end
 
 return {
     menu = menu,
-    logics = logics,   
+    logics = logics,
 }
