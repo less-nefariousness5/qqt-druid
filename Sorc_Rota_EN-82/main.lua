@@ -541,10 +541,10 @@ on_update(function ()
                 -- if is_blood_mist then
                 --     local closer_target_position = closer_target:get_position();
                 --     local move_pos = closer_target_position:get_extended(player_position, -5.0);
-                --     if pathfinder.move_to_cpathfinder(move_pos) then
+                --     if my_utility.move_to(move_pos) then
                 --         cast_end_time = current_time + 0.40;
                 --         can_move = move_timer + 1.5;
-                --         --console.print("自动游戏 move_to_cpathfinder - 111")
+                --         --console.print("自动游戏 move_to - 111")
                 --     end
                 -- else
                     local closer_target_position = closer_target:get_position();
@@ -553,9 +553,9 @@ on_update(function ()
                     -- 使用移动技能到目标位置（参考piteer1逻辑）
                     use_movement_spells_to_target(move_pos);
                     
-                    if pathfinder.move_to_cpathfinder(move_pos) then
+                    if my_utility.move_to(move_pos) then
                         can_move = move_timer + 1.5;
-                        --console.print("自动游戏 move_to_cpathfinder - 222")
+                        --console.print("自动游戏 move_to - 222")
                     end
                 -- end
                 
