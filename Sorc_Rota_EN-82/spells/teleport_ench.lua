@@ -268,7 +268,7 @@ local function logics(target, target_selector_data)
             local current_time = get_time_since_inject()
             next_time_allowed_cast = current_time + 0.5
 
-            console.print("Casted Teleport Enchantment on Self")
+            if debug_enabled then console.print("Casted Teleport Enchantment on Self") end
             return true
         end
     -- Priority target mode with safe teleporting
@@ -284,14 +284,14 @@ local function logics(target, target_selector_data)
                     local current_time = get_time_since_inject()
                     next_time_allowed_cast = current_time + 0.5
 
-                    console.print("Safe Teleport Enchantment to " .. target_type .. " [" .. teleport_mode .. "]")
+                    if debug_enabled then console.print("Safe Teleport Enchantment to " .. target_type .. " [" .. teleport_mode .. "]") end
                     return true
                 end
             else
-                console.print("No safe position for Teleport Enchantment to " .. target_type)
+                if debug_enabled then console.print("No safe position for Teleport Enchantment to " .. target_type) end
             end
         else
-            console.print("No valid priority target found for Teleport Enchantment")
+            if debug_enabled then console.print("No valid priority target found for Teleport Enchantment") end
         end
     -- Regular target mode with safe teleporting
     else
@@ -304,11 +304,11 @@ local function logics(target, target_selector_data)
                     local current_time = get_time_since_inject()
                     next_time_allowed_cast = current_time + 0.75
 
-                    console.print("Safe Teleport Enchantment [" .. teleport_mode .. "]")
+                    if debug_enabled then console.print("Safe Teleport Enchantment [" .. teleport_mode .. "]") end
                     return true
                 end
             else
-                console.print("No safe position for Teleport Enchantment")
+                if debug_enabled then console.print("No safe position for Teleport Enchantment") end
             end
         end
     end

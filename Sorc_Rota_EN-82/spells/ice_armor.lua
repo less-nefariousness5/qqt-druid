@@ -69,7 +69,7 @@ local function logics()
     if cast_spell.self(spell_id_ice_armor, 0.0) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.1;
-        console.print("[SKILL-BUFF] Ice Armor Casted")
+        if debug_enabled then console.print("[SKILL-BUFF] Ice Armor Casted") end
         return true;
     end;
 

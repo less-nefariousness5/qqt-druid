@@ -81,7 +81,7 @@ local function cast_for_exploration_movement()
     if cast_spell.position(spell_id_evade, target_position, 0.2) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.3;
-        console.print("[Exploration Mode] Evade movement cast")
+        if debug_enabled then console.print("[Exploration Mode] Evade movement cast") end
         return true;
     end
 
@@ -119,7 +119,7 @@ local function emergency_evade_logic()
         if cast_spell.position(spell_id_evade, safe_position, 0.2) then
             local current_time = get_time_since_inject();
             next_time_allowed_cast = current_time + 0.3;
-            console.print("[Emergency Evade] Health too low, executing evade")
+            if debug_enabled then console.print("[Emergency Evade] Health too low, executing evade") end
             return true;
         end
     end

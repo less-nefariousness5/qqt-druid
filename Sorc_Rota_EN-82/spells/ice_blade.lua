@@ -60,7 +60,7 @@ local function logics(target)
     cast_spell.position(spell_id_blade, target_position, 0.02)
     next_time_allowed_cast = current_time + 0.1
     last_cast_time = current_time
-    console.print("Sorcerer Plugin, Casted Ice")
+    if debug_enabled then console.print("Sorcerer Plugin, Casted Ice") end
     return true
 end
 

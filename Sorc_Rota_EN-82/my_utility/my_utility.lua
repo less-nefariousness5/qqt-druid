@@ -107,7 +107,7 @@ local function is_action_allowed()
                       is_crackling_energy_loop_active = true;
                       ball_cast_count = 0;
                       spear_ready_time = 0;
-                      console.print("[CRACKLING ENERGY] Loop started - Buff detected: " .. buff:name() .. " (ID: " .. buff.name_hash .. ")");
+                      if debug_enabled then console.print("[CRACKLING ENERGY] Loop started - Buff detected: " .. buff:name() .. " (ID: " .. buff.name_hash .. ")"); end
                   end
               else
                   -- If the option is disabled, make sure the loop is inactive
@@ -115,7 +115,7 @@ local function is_action_allowed()
                       is_crackling_energy_loop_active = false;
                       ball_cast_count = 0;
                       spear_ready_time = 0;
-                      console.print("[CRACKLING ENERGY] Loop disabled - Option is turned off");
+                      if debug_enabled then console.print("[CRACKLING ENERGY] Loop disabled - Option is turned off"); end
                   end
               end
           end
@@ -163,11 +163,11 @@ local function check_crackling_energy_spell_restrictions(spell_id)
                 if spear_ready_time == 0 then
                     -- Set spear to be ready in 0.5 seconds when threshold is first reached
                     spear_ready_time = current_time + 0.5
-                    console.print("[CRACKLING ENERGY] Threshold reached: " .. ball_cast_count .. "/" .. ball_cast_threshold .. ". Spear will be ready in 0.5s")
+                    if debug_enabled then console.print("[CRACKLING ENERGY] Threshold reached: " .. ball_cast_count .. "/" .. ball_cast_threshold .. ". Spear will be ready in 0.5s") end
                     return false
                 elseif current_time >= spear_ready_time then
                     -- Spear is ready to cast
-                    console.print("[CRACKLING ENERGY] Casting Spear now")
+                    if debug_enabled then console.print("[CRACKLING ENERGY] Casting Spear now") end
                     return true
                 else
                     -- Still waiting for spear timer
@@ -175,7 +175,7 @@ local function check_crackling_energy_spell_restrictions(spell_id)
                 end
             else
                 -- Not enough ball casts yet
-                console.print("[CRACKLING ENERGY] Blocked Spear - Need " .. ball_cast_threshold .. " Ball casts first (Current: " .. ball_cast_count .. ")")
+                if debug_enabled then console.print("[CRACKLING ENERGY] Blocked Spear - Need " .. ball_cast_threshold .. " Ball casts first (Current: " .. ball_cast_count .. ")") end
                 return false
             end
         end
@@ -384,9 +384,9 @@ local function track_ball_cast()
             
             -- Use a single conditional check for logging and threshold notification
             if ball_cast_count >= ball_cast_threshold then
-                console.print("[CRACKLING ENERGY] Threshold reached: " .. ball_cast_count .. "/" .. ball_cast_threshold)
+                if debug_enabled then console.print("[CRACKLING ENERGY] Threshold reached: " .. ball_cast_count .. "/" .. ball_cast_threshold) end
             else
-                console.print("[CRACKLING ENERGY] Ball cast tracked: " .. ball_cast_count .. "/" .. ball_cast_threshold)
+                if debug_enabled then console.print("[CRACKLING ENERGY] Ball cast tracked: " .. ball_cast_count .. "/" .. ball_cast_threshold) end
             end
             
             return ball_cast_count
@@ -394,7 +394,7 @@ local function track_ball_cast()
             -- Only print debug information if significantly under cooldown to reduce spam
             local remaining = ball_track_cooldown - (current_time - last_ball_track_time)
             if remaining > 0.1 then
-                console.print("[CRACKLING ENERGY] Ball cast tracking on cooldown: " .. string.format("%.1f", remaining) .. " seconds remaining")
+                if debug_enabled then console.print("[CRACKLING ENERGY] Ball cast tracking on cooldown: " .. string.format("%.1f", remaining) .. " seconds remaining") end
             end
             return ball_cast_count
         end
@@ -417,8 +417,8 @@ local function end_crackling_energy_loop()
     is_crackling_energy_loop_active = false
     ball_cast_count = 0
     spear_ready_time = 0
-    console.print("[CRACKLING ENERGY] Loop ended - Spear cast complete")
-    console.print("[CRACKLING ENERGY] Returning to normal spell casting")
+    if debug_enabled then console.print("[CRACKLING ENERGY] Loop ended - Spear cast complete") end
+    if debug_enabled then console.print("[CRACKLING ENERGY] Returning to normal spell casting") end
     return true
 end
 
@@ -460,7 +460,7 @@ local function is_crackling_energy_loop_active_check()
                 -- If buff is no longer present and we haven't reached threshold yet,
                 -- print a message but keep the loop active until we cast spear
                 if not buff_found and not has_enough_ball_casts() then
-                    console.print("[CRACKLING ENERGY] Warning: Buff no longer detected but continuing loop")
+                    if debug_enabled then console.print("[CRACKLING ENERGY] Warning: Buff no longer detected but continuing loop") end
                 end
             end
         end

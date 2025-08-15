@@ -9,6 +9,8 @@ if not is_sorc then
  return
 end;
 
+debug_enabled = false -- Set to true to enable debug console output
+
 local menu = require("menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
@@ -187,7 +189,7 @@ local function use_movement_spells_to_target(target)
         -- 向目标位置施放移动技能
         local success = cast_spell.position(spell_id, target, 0.3) -- 稍微延迟避免过于频繁使用
         if success then
-            console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id)
+            if debug_enabled then console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id) end
             break -- 成功使用一个技能后跳出循环
         end
     end
@@ -711,4 +713,4 @@ on_render(function ()
 
 end);
 
-console.print("Lua Plugin - Salad Sorcerer - Version 1.4 (with Crackling Energy Snapshot)");
+if debug_enabled then console.print("Lua Plugin - Salad Sorcerer - Version 1.4 (with Crackling Energy Snapshot)"); end

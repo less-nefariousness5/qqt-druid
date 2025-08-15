@@ -144,9 +144,9 @@ local function logics(target)
     if auto_cast_enabled then
         last_auto_cast_time = get_time_since_inject();
         local delay_info = cast_delay_ms > 0 and (" (Delay: " .. cast_delay_ms .. "ms)") or "";
-        console.print("Sorcerer Plugin, Hydra Auto Cast" .. delay_info);
+        if debug_enabled then console.print("Sorcerer Plugin, Hydra Auto Cast" .. delay_info); end
     else
-        console.print("Sorcerer Plugin, Hydra");
+        if debug_enabled then console.print("Sorcerer Plugin, Hydra"); end
     end
         
     return true;

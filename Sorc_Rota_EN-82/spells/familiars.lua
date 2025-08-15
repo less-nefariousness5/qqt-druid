@@ -73,9 +73,9 @@ local function logics(best_target, target_selector_data)
     if auto_cast_enabled then
         last_auto_cast_time = get_time_since_inject();
         local delay_info = cast_delay_ms > 0 and (" (延迟: " .. cast_delay_ms .. "ms)") or "";
-        console.print("Sorcerer Plugin, Familiars Auto Cast" .. delay_info);
+        if debug_enabled then console.print("Sorcerer Plugin, Familiars Auto Cast" .. delay_info); end
     else
-        console.print("Sorcerer Plugin, Familiars");
+        if debug_enabled then console.print("Sorcerer Plugin, Familiars"); end
     end
         
     return true;

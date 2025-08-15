@@ -122,7 +122,7 @@ local function belial_logic()
             if cast_spell.self(spell_id_flame_shield, 0.0) then
                 local current_time = get_time_since_inject();
                 next_time_allowed_cast = current_time + 0.1;
-                console.print("Flame Shield: Cast due to Belial enemy spell 2140755! (1s delayed, non-blocking)")
+                if debug_enabled then console.print("Flame Shield: Cast due to Belial enemy spell 2140755! (1s delayed, non-blocking)") end
                 -- Do not return true, allow other spells to continue
             end
         else
@@ -162,7 +162,7 @@ local function cast_during_exploration()
     if cast_spell.self(spell_id_flame_shield, 0.0) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.1;
-        console.print("[Exploration Mode] Flame Shield auto cast")
+        if debug_enabled then console.print("[Exploration Mode] Flame Shield auto cast") end
         return true;
     end
 
@@ -234,7 +234,7 @@ local function logics(best_target, target_selector_data)
         if cast_spell.self(spell_id_flame_shield, 0.0) then
             local current_time = get_time_since_inject();
             next_time_allowed_cast = current_time + 0.1;
-            console.print("[SKILL-BUFF] Flame Shield cast")
+            if debug_enabled then console.print("[SKILL-BUFF] Flame Shield cast") end
             return true;
         end;
     end;
