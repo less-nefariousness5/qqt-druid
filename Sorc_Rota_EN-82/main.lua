@@ -12,6 +12,7 @@ end;
 local menu = require("menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
+local PathingService = require("services/PathingService");
 
 local spells =
 {
@@ -539,23 +540,21 @@ on_update(function ()
             local closer_target = target_selector.get_target_closer(player_position, 15.0);
             if closer_target then
                 -- if is_blood_mist then
-                --     local closer_target_position = closer_target:get_position();
-                --     local move_pos = closer_target_position:get_extended(player_position, -5.0);
-                --     if pathfinder.move_to_cpathfinder(move_pos) then
-                --         cast_end_time = current_time + 0.40;
-                --         can_move = move_timer + 1.5;
-                --         --console.print("自动游戏 move_to_cpathfinder - 111")
-                --     end
-                -- else
+                    --     local closer_target_position = closer_target:get_position();
+                    --     local move_pos = closer_target_position:get_extended(player_position, -5.0);
+                    --     if PathingService.navigate(move_pos) then
+                    --         cast_end_time = current_time + 0.40;
+                    --         can_move = move_timer + 1.5;
+                    --     end
+                    -- else
                     local closer_target_position = closer_target:get_position();
                     local move_pos = closer_target_position:get_extended(player_position, 4.0);
-                    
+
                     -- 使用移动技能到目标位置（参考piteer1逻辑）
                     use_movement_spells_to_target(move_pos);
-                    
-                    if pathfinder.move_to_cpathfinder(move_pos) then
+
+                    if PathingService.navigate(move_pos) then
                         can_move = move_timer + 1.5;
-                        --console.print("自动游戏 move_to_cpathfinder - 222")
                     end
                 -- end
                 
