@@ -12,6 +12,7 @@ end;
 local menu = require("menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
+local CooldownGuard = require("core/CooldownGuard");
 
 local spells =
 {
@@ -155,10 +156,10 @@ on_render_menu (function ()
 end)
 
 local can_move = 0.0;
-local cast_end_time = 0.0;
 
 -- 移动技能功能（参考piteer1的movement_spell_to_target）
 local function use_movement_spells_to_target(target)
+    if not CooldownGuard:can_act() then return end
     local local_player = get_local_player()
     if not local_player then return end
 
@@ -187,8 +188,9 @@ local function use_movement_spells_to_target(target)
         -- 向目标位置施放移动技能
         local success = cast_spell.position(spell_id, target, 0.3) -- 稍微延迟避免过于频繁使用
         if success then
+            CooldownGuard:on_movement(0.3)
             console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id)
-            break -- 成功使用一个技能后跳出循环
+            return -- 成功使用一个技能后跳出循环
         end
     end
 end
@@ -213,7 +215,7 @@ on_update(function ()
     end;
 
     local current_time = get_time_since_inject()
-    if current_time < cast_end_time then
+    if not CooldownGuard:can_act() then
         return;
     end;
 
@@ -455,7 +457,7 @@ on_update(function ()
     
     -- 火球术的特殊处理，因为它有返回值
     if spells.fireball.logics(best_target, target_selector_data) then
-        cast_end_time = current_time + 0.3; -- 标准施法的正常延迟
+        CooldownGuard:on_spell_cast(0.3) -- 标准施法的正常延迟
         return;
     end;
     
@@ -486,38 +488,26 @@ on_update(function ()
         equipped_lookup[spell_id] = true
     end
     
-    -- 正常技能优先级逻辑(仅在不处于电流爆发循环时运行)
-    for _, spell_name in ipairs(spell_priority) do
-        if spells[spell_name] and spell_data[spell_name] and spell_data[spell_name].spell_id and equipped_lookup[spell_data[spell_name].spell_id] then
-            if spells[spell_name].logics(best_target, target_selector_data) then
-                break;
-            end
-        end
-    end
-    
-    -- 按照spell_priority.lua中定义的优先级顺序循环遍历技能
+    local movement_spells_lookup = { evade = true, teleport = true, teleport_ench = true }
+    -- 根据优先级循环遍历技能
     for _, spell_name in ipairs(spell_priority) do
         local spell = spells[spell_name]
-        -- 仅处理已装备的技能
         if spell and spell_data[spell_name] and spell_data[spell_name].spell_id and equipped_lookup[spell_data[spell_name].spell_id] then
             local params = spell_params[spell_name]
-            
-            if params then
-                -- 跳过带有custom_handler标志的技能，因为它们被单独处理
-                if not params.custom_handler then
-                    -- 如果定义了自定义前置条件，则检查
-                    local should_cast = true
-                    if params.custom_check ~= nil then
-                        should_cast = params.custom_check()
-                    end
-                    
-                    if should_cast then
-                        -- 使用适当的参数调用技能的logics函数
-                        local result = spell.logics(unpack(params.args))
-                        if result then
-                            cast_end_time = current_time + params.delay
-                            return
+            if params and not params.custom_handler then
+                local should_cast = true
+                if params.custom_check ~= nil then
+                    should_cast = params.custom_check()
+                end
+                if should_cast then
+                    local result = spell.logics(unpack(params.args))
+                    if result then
+                        if movement_spells_lookup[spell_name] then
+                            CooldownGuard:on_movement(params.delay > 0 and params.delay or 0.3)
+                        else
+                            CooldownGuard:on_spell_cast(params.delay)
                         end
+                        return
                     end
                 end
             end
@@ -552,7 +542,11 @@ on_update(function ()
                     
                     -- 使用移动技能到目标位置（参考piteer1逻辑）
                     use_movement_spells_to_target(move_pos);
-                    
+
+                    if not CooldownGuard:can_act() then
+                        return;
+                    end
+
                     if pathfinder.move_to_cpathfinder(move_pos) then
                         can_move = move_timer + 1.5;
                         --console.print("自动游戏 move_to_cpathfinder - 222")
