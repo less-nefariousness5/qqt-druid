@@ -44,6 +44,10 @@ local spells =
     unstable_current        = require("spells/unstable_current")
 }
 
+local COLLISION_TABLE = { true, 1.0 };
+local FLOOR_TABLE = { true, 5.0 };
+local ANGLE_TABLE = { false, 90.0 };
+
 on_render_menu (function ()
 
     if not menu.main_tree:push("Sorcerer: Salad Version") then
@@ -234,16 +238,12 @@ on_update(function ()
     local screen_range = 12.0;
     local player_position = get_player_position();
 
-    local collision_table = { true, 1.0 };
-    local floor_table = { true, 5.0 };
-    local angle_table = { false, 90.0 };
-
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
-        angle_table);
+        screen_range,
+        COLLISION_TABLE,
+        FLOOR_TABLE,
+        ANGLE_TABLE);
 
     -- 获取any_weight值用于过滤普通目标
     local any_weight = 2  -- 默认值
@@ -636,16 +636,12 @@ on_render(function ()
     local screen_range = 12.0;
     local player_position = get_player_position();
 
-    local collision_table = { true, 1.0 };
-    local floor_table = { true, 5.0 };
-    local angle_table = { false, 90.0 };
-
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
-        angle_table);
+        screen_range,
+        COLLISION_TABLE,
+        FLOOR_TABLE,
+        ANGLE_TABLE);
 
     -- 获取any_weight值用于过滤普通目标
     local any_weight_2 = 2  -- 默认值
