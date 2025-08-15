@@ -12,6 +12,9 @@ end;
 local menu = require("menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
+local StateMachine = require("core/StateMachine");
+local state_machine = StateMachine.new();
+state_machine:switch("IDLE");
 
 local spells =
 {
@@ -201,6 +204,8 @@ local my_utility = require("my_utility/my_utility");
 local my_target_selector = require("my_utility/my_target_selector");
 
 on_update(function ()
+
+    state_machine:update();
 
     local local_player = get_local_player();
     if not local_player then
