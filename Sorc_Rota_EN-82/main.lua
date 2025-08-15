@@ -12,6 +12,9 @@ end;
 local config = require("ui/menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
+local StateMachine = require("core/StateMachine");
+local state_machine = StateMachine.new();
+state_machine:switch("IDLE");
 
 local spells =
 {
@@ -102,6 +105,8 @@ local floor_table = { true, 5.0 }
 local angle_table = { false, 90.0 }
 
 on_update(function ()
+
+    state_machine:update();
 
     local local_player = get_local_player();
     if not local_player then
