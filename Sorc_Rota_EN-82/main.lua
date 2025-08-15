@@ -9,7 +9,7 @@ if not is_sorc then
  return
 end;
 
-local menu = require("menu");
+local config = require("ui/menu");
 local spell_priority = require("spell_priority");
 local spell_data = require("my_utility/spell_data");
 
@@ -43,116 +43,6 @@ local spells =
     teleport_ench           = require("spells/teleport_ench"),
     unstable_current        = require("spells/unstable_current")
 }
-
-on_render_menu (function ()
-
-    if not menu.main_tree:push("Sorcerer: Salad Version") then
-        return;
-    end;
-
-    menu.main_boolean:render("Enable Plugin", "");
-
-
-    if menu.main_boolean:get() == false then
-        menu.main_tree:pop();
-        return;
-    end;
-    
-    -- 获取已装备的技能
-    local equipped_spells = get_equipped_spell_ids()
-    table.insert(equipped_spells, spell_data.evade.spell_id) -- 将躲避技能添加到列表中
-    
-    -- 检查传送附魔增益(增益ID 516547)
-    local has_teleport_ench_buff = false
-    local player_buffs = local_player:get_buffs()
-    if player_buffs then
-        for _, buff in ipairs(player_buffs) do
-            if buff.name_hash == 516547 then
-                has_teleport_ench_buff = true
-                break
-            end
-        end
-    end
-    
-    -- 如果检测到传送附魔增益，将其添加到已装备技能中
-    if has_teleport_ench_buff then
-        table.insert(equipped_spells, spell_data.teleport_ench.spell_id)
-    end
-    
-    -- 为已装备技能创建查找表
-    local equipped_lookup = {}
-    for _, spell_id in ipairs(equipped_spells) do
-        equipped_lookup[spell_id] = true
-    end
-    
-    -- Weighted Targeting System menu
-    if menu.weighted_targeting_tree:push("Weighted Targeting System") then
-        menu.weighted_targeting_enabled:render("Enable Weighted Targeting", "Enable weighted system for prioritizing targets based on type and distance")
-        
-        -- 仅在启用权重目标时显示配置选项
-        if menu.weighted_targeting_enabled:get() then
-            -- 扫描设置
-            menu.scan_radius:render("Scan Radius", "Radius around character to scan for targets (1-30)")
-            menu.scan_refresh_rate:render("Refresh Rate", "Target scan refresh rate in seconds (0.1-1.0)", 1) -- Add rounding parameter for float slider
-            menu.min_targets:render("Minimum Targets", "Minimum number of targets required to activate weighted targeting system (1-10)")
-            menu.comparison_radius:render("Comparison Radius", "Radius to check nearby targets when calculating weights (0.1-6.0)", 1) -- Add rounding parameter for float slider
-            
-            -- 自定义权重开关
-            menu.custom_weights_enabled:render("Custom Enemy Weights", "Enable to customize weights for different enemy types")
-            
-            -- 仅在启用自定义权重时显示权重滑块
-            if menu.custom_weights_enabled:get() then
-                -- 目标权重
-                menu.boss_weight:render("Boss Weight", "Weight assigned to boss targets (1-100)")
-                menu.elite_weight:render("Elite Weight", "Weight assigned to elite targets (1-100)")
-                menu.champion_weight:render("Champion Weight", "Weight assigned to champion targets (1-100)")
-                menu.any_weight:render("Normal Target Weight", "Weight assigned to normal targets (0-100, set to 0 to ignore normal targets)")
-            end
-            -- 自定义增益权重部分
-            menu.custom_buff_weights_enabled:render("Custom Buff Weights", "Enable to customize weights for targets with special buffs")
-            if menu.custom_buff_weights_enabled:get() then
-                menu.damage_resistance_provider_weight:render("Damage Resistance Provider Bonus", "Weight bonus for enemies providing damage resistance aura (1-100)")
-                menu.damage_resistance_receiver_penalty:render("Damage Resistance Receiver Penalty", "Weight penalty for enemies receiving damage resistance (0-20)")
-                menu.horde_objective_weight:render("Horde Objective Bonus", "Weight bonus for horde objective targets (1-100)")
-                menu.vulnerable_debuff_weight:render("Vulnerable Debuff Bonus", "Weight bonus for targets with vulnerable debuff (1-5)")
-            end
-        end
-        
-        menu.weighted_targeting_tree:pop()
-    end;
-    
-    -- 用已装备的技能ID填充查找表
-    for _, spell_id in ipairs(equipped_spells) do
-        equipped_lookup[spell_id] = true
-    end
-    
-    -- 激活技能菜单(当前已装备的技能)
-    if menu.active_spells_tree:push("Active Spells") then
-        -- 遍历技能优先级以保持定义的顺序
-        for _, spell_name in ipairs(spell_priority) do
-            -- 检查技能是否存在于技能表、技能数据中，并且是否已装备
-            if spells[spell_name] and spell_data[spell_name] and spell_data[spell_name].spell_id and equipped_lookup[spell_data[spell_name].spell_id] then
-                spells[spell_name].menu()
-            end
-        end
-        menu.active_spells_tree:pop()
-    end
-    
-    -- 未激活技能菜单(当前未装备的技能)
-    if menu.inactive_spells_tree:push("Inactive Spells") then
-        -- 遍历技能优先级以保持定义的顺序
-        for _, spell_name in ipairs(spell_priority) do
-            -- 检查技能是否存在于技能表、技能数据中，并且是否未装备
-            if spells[spell_name] and spell_data[spell_name] and spell_data[spell_name].spell_id and not equipped_lookup[spell_data[spell_name].spell_id] then
-                spells[spell_name].menu()
-            end
-        end
-        menu.inactive_spells_tree:pop()
-    end;
-    
-    menu.main_tree:pop();
-    
-end)
 
 local can_move = 0.0;
 local cast_end_time = 0.0;
@@ -207,7 +97,7 @@ on_update(function ()
         return;
     end
     
-    if menu.main_boolean:get() == false then
+    if not config.enabled then
         -- 如果插件被禁用，不执行任何逻辑
         return;
     end;
@@ -247,8 +137,8 @@ on_update(function ()
 
     -- 获取any_weight值用于过滤普通目标
     local any_weight = 2  -- 默认值
-    if menu.custom_weights_enabled:get() then
-        any_weight = menu.any_weight:get()
+    if config.custom_weights_enabled then
+        any_weight = config.any_weight
     end
 
     local target_selector_data = my_target_selector.get_target_selector_data(
@@ -273,22 +163,22 @@ on_update(function ()
     local best_target = target_selector_data.closest_unit;
 
     -- 如果启用了权重目标，应用权重目标选择
-    if menu.weighted_targeting_enabled:get() then
+    if config.weighted_targeting_enabled then
         -- 获取配置值
-        local scan_radius = menu.scan_radius:get()
-        local refresh_rate = menu.scan_refresh_rate:get()
-        local min_targets = menu.min_targets:get()
-        local comparison_radius = menu.comparison_radius:get()
+        local scan_radius = config.scan_radius
+        local refresh_rate = config.scan_refresh_rate
+        local min_targets = config.min_targets
+        local comparison_radius = config.comparison_radius
         
         -- 根据开关使用自定义权重或默认权重
         local boss_weight, elite_weight, champion_weight
         local damage_resistance_provider_weight, damage_resistance_receiver_penalty, horde_objective_weight
         
         -- 自定义敌人权重
-        if menu.custom_weights_enabled:get() then
-            boss_weight = menu.boss_weight:get()
-            elite_weight = menu.elite_weight:get()
-            champion_weight = menu.champion_weight:get()
+        if config.custom_weights_enabled then
+            boss_weight = config.boss_weight
+            elite_weight = config.elite_weight
+            champion_weight = config.champion_weight
             -- any_weight已经在前面获取了
         else
             boss_weight = 50
@@ -298,11 +188,11 @@ on_update(function ()
         end
 
         -- 自定义增益权重
-        if menu.custom_buff_weights_enabled:get() then
-            damage_resistance_provider_weight = menu.damage_resistance_provider_weight:get()
-            damage_resistance_receiver_penalty = menu.damage_resistance_receiver_penalty:get()
-            horde_objective_weight = menu.horde_objective_weight:get()
-            vulnerable_debuff_weight = menu.vulnerable_debuff_weight:get()
+        if config.custom_buff_weights_enabled then
+            damage_resistance_provider_weight = config.damage_resistance_provider_weight
+            damage_resistance_receiver_penalty = config.damage_resistance_receiver_penalty
+            horde_objective_weight = config.horde_objective_weight
+            vulnerable_debuff_weight = config.vulnerable_debuff_weight
         else
             damage_resistance_provider_weight = 30
             damage_resistance_receiver_penalty = 5
@@ -570,7 +460,7 @@ local draw_enemy_circles = false;
 
 on_render(function ()
 
-    if menu.main_boolean:get() == false then
+    if not config.enabled then
         return;
     end;
 
@@ -649,8 +539,8 @@ on_render(function ()
 
     -- 获取any_weight值用于过滤普通目标
     local any_weight_2 = 2  -- 默认值
-    if menu.custom_weights_enabled:get() then
-        any_weight_2 = menu.any_weight:get()
+    if config.custom_weights_enabled then
+        any_weight_2 = config.any_weight
     end
 
     local target_selector_data = my_target_selector.get_target_selector_data(
