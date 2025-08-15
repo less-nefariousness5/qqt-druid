@@ -200,6 +200,11 @@ local mount_buff_name_hash_c = 1923;
 local my_utility = require("my_utility/my_utility");
 local my_target_selector = require("my_utility/my_target_selector");
 
+-- Reusable tables to avoid per-frame allocations
+local collision_table = { true, 1.0 }
+local floor_table = { true, 5.0 }
+local angle_table = { false, 90.0 }
+
 on_update(function ()
 
     local local_player = get_local_player();
@@ -234,15 +239,11 @@ on_update(function ()
     local screen_range = 12.0;
     local player_position = get_player_position();
 
-    local collision_table = { true, 1.0 };
-    local floor_table = { true, 5.0 };
-    local angle_table = { false, 90.0 };
-
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
+        screen_range,
+        collision_table,
+        floor_table,
         angle_table);
 
     -- 获取any_weight值用于过滤普通目标
@@ -636,15 +637,11 @@ on_render(function ()
     local screen_range = 12.0;
     local player_position = get_player_position();
 
-    local collision_table = { true, 1.0 };
-    local floor_table = { true, 5.0 };
-    local angle_table = { false, 90.0 };
-
     local entity_list = my_target_selector.get_target_list(
         player_position,
-        screen_range, 
-        collision_table, 
-        floor_table, 
+        screen_range,
+        collision_table,
+        floor_table,
         angle_table);
 
     -- 获取any_weight值用于过滤普通目标
