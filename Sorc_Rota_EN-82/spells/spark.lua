@@ -84,11 +84,15 @@ local function logics(best_target, target_selector_data)
             if cast_spell.target(priority_best_target, spark_spell_data, false) then
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.6
-                console.print("[PRIORITY] Spark cast at " .. target_type .. " target")
+                if debug_enabled then
+                    console.print("[PRIORITY] Spark cast at " .. target_type .. " target");
+                end
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Spark")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Spark");
+            end
         end
         
         return false
@@ -103,7 +107,9 @@ local function logics(best_target, target_selector_data)
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.6;
 
-        console.print("Sorcerer Plugin, Casted Spark");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Spark");
+        end
         return true;
     end;
             

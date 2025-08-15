@@ -100,11 +100,15 @@ local function logics(best_target, target_selector_data)
             if cast_spell.target(priority_best_target, charge_bolt_spell_data, false) then
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.7
-                console.print("[PRIORITY] Charged Bolts cast at " .. target_type .. " target")
+                if debug_enabled then
+                    console.print("[PRIORITY] Charged Bolts cast at " .. target_type .. " target");
+                end
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Charged Bolts")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Charged Bolts");
+            end
         end
         
         return false
@@ -121,7 +125,9 @@ local function logics(best_target, target_selector_data)
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.7;
 
-        console.print("Sorcerer Plugin, Casted Charged Bolts");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Charged Bolts");
+        end
         return true;
     end;
             

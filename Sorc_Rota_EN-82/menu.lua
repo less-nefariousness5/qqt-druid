@@ -5,6 +5,7 @@ local menu_elements_jmrz =
     immortal_boolean        = checkbox:new(false, get_hash(my_utility.plugin_label .. "immortal_boolean")),
     immortal_drawings        = checkbox:new(false, get_hash(my_utility.plugin_label .. "immortal_drawings")),
     main_tree           = tree_node:new(0),
+    debug_enabled       = checkbox:new(false, get_hash(my_utility.plugin_label .. "debug_enabled")),
     
     -- Crackling Energy Snapshot Toggle
     crackling_energy_snapshot_enabled = checkbox:new(false, get_hash(my_utility.plugin_label .. "crackling_energy_snapshot_enabled")),

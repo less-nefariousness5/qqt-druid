@@ -104,11 +104,15 @@ local function logics(best_target, target_selector_data)
             if cast_spell.target(priority_best_target, arc_lash_data, false) then
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.4
-                console.print("[PRIORITY] Arc Lash cast at " .. target_type .. " target")
+                if debug_enabled then
+                    console.print("[PRIORITY] Arc Lash cast at " .. target_type .. " target");
+                end
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Arc Lash")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Arc Lash");
+            end
         end
         
         return false
@@ -122,7 +126,9 @@ local function logics(best_target, target_selector_data)
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.4;
         
-        console.print("Sorcerer Plugin, Casted Arc Lash");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Arc Lash");
+        end
         return true;
     end;
             

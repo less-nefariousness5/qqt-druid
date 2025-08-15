@@ -107,9 +107,13 @@ local function logics(target)
     -- If we were in Crackling Energy loop, end it after casting inferno
     if is_in_crackling_energy_loop then
         my_utility.end_crackling_energy_loop();
-        console.print("Sorcerer Plugin, Casted Inferno - Crackling Energy Snapshot Complete");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Inferno - Crackling Energy Snapshot Complete");
+        end
     else
-        console.print("Sorcerer Plugin, Casted Inferno");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Inferno");
+        end
     end
     
     return true;

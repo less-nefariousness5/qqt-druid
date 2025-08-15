@@ -51,6 +51,8 @@ on_render_menu (function ()
     end;
 
     menu.main_boolean:render("Enable Plugin", "");
+    menu.debug_enabled:render("Enable Debug Output", "");
+    debug_enabled = menu.debug_enabled:get();
 
 
     if menu.main_boolean:get() == false then
@@ -187,7 +189,9 @@ local function use_movement_spells_to_target(target)
         -- 向目标位置施放移动技能
         local success = cast_spell.position(spell_id, target, 0.3) -- 稍微延迟避免过于频繁使用
         if success then
-            console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id)
+            if debug_enabled then
+                console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id);
+            end
             break -- 成功使用一个技能后跳出循环
         end
     end
@@ -711,4 +715,6 @@ on_render(function ()
 
 end);
 
-console.print("Lua Plugin - Salad Sorcerer - Version 1.4 (with Crackling Energy Snapshot)");
+if debug_enabled then
+    console.print("Lua Plugin - Salad Sorcerer - Version 1.4 (with Crackling Energy Snapshot)");
+end

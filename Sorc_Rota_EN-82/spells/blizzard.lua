@@ -109,13 +109,17 @@ local function logics(best_target, target_selector_data)
             local priority_target_position = priority_best_target:get_position()
             
             if cast_spell.position(spell_id_blizzard, priority_target_position, 0.40) then
-                console.print("[PRIORITY] Blizzard cast at " .. target_type .. " target: " .. priority_best_target:get_skin_name())
+                if debug_enabled then
+                    console.print("[PRIORITY] Blizzard cast at " .. target_type .. " target: " .. priority_best_target:get_skin_name());
+                end
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.3
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Blizzard")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Blizzard");
+            end
         end
         
         return false
@@ -194,7 +198,9 @@ local function logics(best_target, target_selector_data)
 
     local best_cast_position = best_cast_data.point;
     if cast_spell.position(spell_id_blizzard, best_cast_position, 0.40) then
-        console.print("Sorcerer Plugin, Casted Blizzard, Target " .. best_target:get_skin_name() .. " Hits: " .. best_cast_hits);
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Blizzard, Target " .. best_target:get_skin_name() .. " Hits: " .. best_cast_hits);
+        end
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.3; -- fixed an oopsie that chaser did where he wrote time instead of current_time
         return true;

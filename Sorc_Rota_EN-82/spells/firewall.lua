@@ -89,11 +89,15 @@ local function logics(best_target, target_selector_data)
             if cast_spell.position(spell_id_firewall, priority_target_position, 0.35) then
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.1
-                console.print("[PRIORITY] Firewall cast at " .. target_type .. " target")
+                if debug_enabled then
+                    console.print("[PRIORITY] Firewall cast at " .. target_type .. " target");
+                end
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Firewall")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Firewall");
+            end
         end
         
         return false
@@ -109,7 +113,9 @@ local function logics(best_target, target_selector_data)
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.1;
             
-        console.print("Sorcerer Plugin, Firewall");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Firewall");
+        end
         return true;
     end;
         

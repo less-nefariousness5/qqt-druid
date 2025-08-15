@@ -105,11 +105,15 @@ local function logics(best_target, target_selector_data)
             if cast_spell.target(priority_best_target, frozen_orb_data, false) then
                 local current_time = get_time_since_inject()
                 next_time_allowed_cast = current_time + 0.8
-                console.print("[PRIORITY] Frozen Orb cast at " .. target_type .. " target")
+                if debug_enabled then
+                    console.print("[PRIORITY] Frozen Orb cast at " .. target_type .. " target");
+                end
                 return true
             end
         else
-            console.print("[PRIORITY] No valid priority target found for Frozen Orb")
+            if debug_enabled then
+                console.print("[PRIORITY] No valid priority target found for Frozen Orb");
+            end
         end
         
         return false
@@ -126,7 +130,9 @@ local function logics(best_target, target_selector_data)
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.8;
 
-        console.print("Sorc Plugin, Casted Frozen Orb");
+        if debug_enabled then
+            console.print("Sorc Plugin, Casted Frozen Orb");
+        end
         return true;
     end;
             

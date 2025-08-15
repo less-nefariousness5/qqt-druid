@@ -80,10 +80,14 @@ local function logics(best_target, target_selector_data)
         local has_priority, target_type = has_priority_targets_nearby(target_selector_data)
         
         if not has_priority then
-            console.print("[PRIORITY] No priority targets nearby for Deep Freeze")
+            if debug_enabled then
+                console.print("[PRIORITY] No priority targets nearby for Deep Freeze");
+            end
             return false
         else
-            console.print("[PRIORITY] " .. target_type .. " target detected, proceeding with Deep Freeze")
+            if debug_enabled then
+                console.print("[PRIORITY] " .. target_type .. " target detected, proceeding with Deep Freeze");
+            end
         end
     end
 

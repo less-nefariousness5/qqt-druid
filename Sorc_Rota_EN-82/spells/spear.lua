@@ -62,9 +62,13 @@ local function logics(target)
     -- If we were in Crackling Energy loop, end it after casting spear
     if is_in_crackling_energy_loop then
         my_utility.end_crackling_energy_loop();
-        console.print("Sorcerer Plugin, Casted Spear - Crackling Energy Snapshot Complete");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Spear - Crackling Energy Snapshot Complete");
+        end
     else
-        console.print("Sorcerer Plugin, Casted Spear");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Spear");
+        end
     end
     
     return true;

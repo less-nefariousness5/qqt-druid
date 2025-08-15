@@ -388,7 +388,9 @@ local function cast_for_exploration_movement()
     if cast_spell.position(spell_id_tp, target_position, 0.3) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + 0.4;
-        console.print("[Exploration Mode] Teleport Movement Cast")
+        if debug_enabled then
+            console.print("[Exploration Mode] Teleport Movement Cast");
+        end
         return true;
     end
 
@@ -439,7 +441,9 @@ local function logics(entity_list, target_selector_data, best_target)
 
             cast_spell.position(spell_id_tp, safe_position, 0.3);
             next_time_allowed_cast = get_time_since_inject() + 0.1;
-            console.print("Sorcerer Plugin, Casted Teleport due to I need to GTFO");
+            if debug_enabled then
+                console.print("Sorcerer Plugin, Casted Teleport due to I need to GTFO");
+            end
             return true;
         end
     end
@@ -461,7 +465,9 @@ local function logics(entity_list, target_selector_data, best_target)
     if menu_elements_sorc_base.teleport_on_self:get() then
         cast_spell.self(spell_id_tp, 0.3);  
         next_time_allowed_cast = get_time_since_inject() + 0.4;
-        console.print("Sorcerer Plugin, Casted Teleport on Self");
+        if debug_enabled then
+            console.print("Sorcerer Plugin, Casted Teleport on Self");
+        end
         return true;
     end
     
@@ -478,14 +484,20 @@ local function logics(entity_list, target_selector_data, best_target)
                     local current_time = get_time_since_inject()
                     next_time_allowed_cast = current_time + 0.4
 
-                    console.print("Sorcerer Plugin, Safe Teleport to " .. target_type .. " [" .. teleport_mode .. "]")
+                    if debug_enabled then
+                        console.print("Sorcerer Plugin, Safe Teleport to " .. target_type .. " [" .. teleport_mode .. "]");
+                    end
                     return true
                 end
             else
-                console.print("No safe teleport position found for " .. target_type)
+                if debug_enabled then
+                    console.print("No safe teleport position found for " .. target_type);
+                end
             end
         else
-            console.print("No valid priority target found for Teleport")
+            if debug_enabled then
+                console.print("No valid priority target found for Teleport");
+            end
         end
     end
 
@@ -517,7 +529,9 @@ local function logics(entity_list, target_selector_data, best_target)
     local safe_position = select_safe_teleport_target(teleport_mode, best_target, player_position)
     
     if not safe_position then
-        console.print("No safe teleport position available")
+        if debug_enabled then
+            console.print("No safe teleport position available");
+        end
         return false;
     end
     
@@ -530,7 +544,9 @@ local function logics(entity_list, target_selector_data, best_target)
     local current_time = get_time_since_inject();
     next_time_allowed_cast = current_time + 0.4;
 
-    console.print("Sorcerer Plugin, Safe Teleport [" .. teleport_mode .. "]");
+    if debug_enabled then
+        console.print("Sorcerer Plugin, Safe Teleport [" .. teleport_mode .. "]");
+    end
     return true;
 
 end
