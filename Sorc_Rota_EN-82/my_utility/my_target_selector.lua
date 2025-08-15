@@ -324,8 +324,8 @@ local function get_target_list(source, range, collision_table, floor_table, angl
         if angle_table.is_enabled then
             local cursor_position = cursor_pos();
             local angle = unit_position.angle(cursor_position, source);
-            local is_outside_angle = angle > floor_table.max_angle
-        
+            local is_outside_angle = angle > angle_table.max_angle
+
             if is_outside_angle then
                 goto continue
             end
