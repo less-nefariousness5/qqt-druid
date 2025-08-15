@@ -156,11 +156,16 @@ end)
 
 local can_move = 0.0;
 local cast_end_time = 0.0;
+local next_move_at = 0.0;
 
 -- 移动技能功能（参考piteer1的movement_spell_to_target）
 local function use_movement_spells_to_target(target)
     local local_player = get_local_player()
     if not local_player then return end
+
+    if get_time_since_inject() < next_move_at then
+        return
+    end
 
     local movement_spell_id = {}
 
@@ -188,6 +193,7 @@ local function use_movement_spells_to_target(target)
         local success = cast_spell.position(spell_id, target, 0.3) -- 稍微延迟避免过于频繁使用
         if success then
             console.print("[Movement Spell] Successfully used movement spell to target position ID:" .. spell_id)
+            next_move_at = get_time_since_inject() + 0.30
             break -- 成功使用一个技能后跳出循环
         end
     end
