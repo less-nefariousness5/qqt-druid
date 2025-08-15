@@ -1,3 +1,5 @@
+local PathingService = require("services/PathingService")
+
 local function is_auto_play_enabled()
     -- auto play fire spells without orbwalker
     local is_auto_play_active = auto_play.is_active();
@@ -48,6 +50,10 @@ local horde_objectives = {
     "BSK_cannibal_brute_boss",
     "BSK_skeleton_boss"
 }
+
+local function move_to(pos)
+    return PathingService:move_to(pos)
+end
 
 local function is_action_allowed()
 
@@ -478,6 +484,7 @@ return
     is_action_allowed = is_action_allowed,
 
     is_auto_play_enabled = is_auto_play_enabled,
+    move_to = move_to,
 
     -- decrepify & bone_prision
     get_best_point = get_best_point,
